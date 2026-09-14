@@ -9,10 +9,11 @@ import org.lyaaz.fuckgram.HookModule.Companion.messagesControllerClass
 import org.lyaaz.fuckgram.HookModule.Companion.settings
 import org.lyaaz.fuckgram.HookUtils.hookConstructors
 import org.lyaaz.fuckgram.HookUtils.hookMethods
+import org.lyaaz.fuckgram.Toggle
 
 object PremiumFeaturesHook : HookModule {
     override fun enabled(): Boolean {
-        return settings.lockPremiumFeatures()
+        return settings.isEnabled(Toggle.PREMIUM_FEATURES)
     }
 
     override fun hook(lpparam: XC_LoadPackage.LoadPackageParam): Boolean {

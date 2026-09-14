@@ -6,10 +6,11 @@ import org.lyaaz.fuckgram.HookModule
 import org.lyaaz.fuckgram.HookModule.Companion.chatActivityClass
 import org.lyaaz.fuckgram.HookModule.Companion.settings
 import org.lyaaz.fuckgram.HookUtils.hookMethods
+import org.lyaaz.fuckgram.Toggle
 
 object TrackingHook : HookModule {
     override fun enabled(): Boolean {
-        return settings.disableTracking()
+        return settings.isEnabled(Toggle.TRACKING)
     }
 
     override fun hook(lpparam: XC_LoadPackage.LoadPackageParam): Boolean {

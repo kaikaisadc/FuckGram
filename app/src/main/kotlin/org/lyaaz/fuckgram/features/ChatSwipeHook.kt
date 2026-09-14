@@ -8,11 +8,12 @@ import org.lyaaz.fuckgram.HookModule.Companion.dialogSwipeControllerClass
 import org.lyaaz.fuckgram.HookModule.Companion.settings
 import org.lyaaz.fuckgram.HookModule.Companion.sharedConfigClass
 import org.lyaaz.fuckgram.HookUtils.hookMethods
+import org.lyaaz.fuckgram.Toggle
 
 object ChatSwipeHook : HookModule {
 
     override fun enabled(): Boolean {
-        return settings.disableChatSwipe()
+        return settings.isEnabled(Toggle.CHAT_SWIPE)
     }
 
     override fun hook(lpparam: XC_LoadPackage.LoadPackageParam): Boolean {
@@ -20,18 +21,15 @@ object ChatSwipeHook : HookModule {
             dialogCellClass,
             "getTranslationX",
             XC_MethodReplacement.returnConstant(0f)
-        )
-        hookMethods(
+        ) and hookMethods(
             dialogCellClass,
             "setTranslationX",
             XC_MethodReplacement.returnConstant(null)
-        )
-        hookMethods(
+        ) and hookMethods(
             dialogSwipeControllerClass,
             "onSwiped",
             XC_MethodReplacement.returnConstant(null)
-        )
-        hookMethods(
+        ) and hookMethods(
             sharedConfigClass,
             "getChatSwipeAction",
             XC_MethodReplacement.returnConstant(-1)

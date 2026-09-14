@@ -13,7 +13,7 @@ interface HookModule {
         lateinit var lpparam: LoadPackageParam
 
         val prefs: SharedPreferences by lazy { XSharedPreferences(BuildConfig.APPLICATION_ID) }
-        val settings: Settings by lazy { Settings.getInstance(prefs) }
+        val settings: Settings by lazy { Settings(prefs) }
 
         val getClass = { name: String ->
             XposedHelpers.findClass(name, lpparam.classLoader)

@@ -9,10 +9,11 @@ import org.lyaaz.fuckgram.HookModule.Companion.fileLoadOperationClass
 import org.lyaaz.fuckgram.HookModule.Companion.settings
 import org.lyaaz.fuckgram.HookUtils.hookMethods
 import org.lyaaz.fuckgram.Settings
+import org.lyaaz.fuckgram.Toggle
 
 object SpeedUpDownloadHook : HookModule {
     override fun enabled(): Boolean {
-        return settings.enableSpeedUpDownload()
+        return settings.isEnabled(Toggle.SPEED_UP_DOWNLOAD)
     }
 
     override fun hook(lpparam: XC_LoadPackage.LoadPackageParam): Boolean {

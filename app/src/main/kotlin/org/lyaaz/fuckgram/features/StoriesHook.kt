@@ -7,10 +7,11 @@ import org.lyaaz.fuckgram.HookModule.Companion.messagesControllerClass
 import org.lyaaz.fuckgram.HookModule.Companion.settings
 import org.lyaaz.fuckgram.HookModule.Companion.storiesControllerClass
 import org.lyaaz.fuckgram.HookUtils.hookMethods
+import org.lyaaz.fuckgram.Toggle
 
 object StoriesHook : HookModule {
     override fun enabled(): Boolean {
-        return settings.disableStories()
+        return settings.isEnabled(Toggle.STORIES)
     }
 
     override fun hook(lpparam: XC_LoadPackage.LoadPackageParam): Boolean {
@@ -18,8 +19,7 @@ object StoriesHook : HookModule {
             storiesControllerClass,
             "hasStories",
             XC_MethodReplacement.returnConstant(false)
-        )
-        hookMethods(
+        ) and hookMethods(
             messagesControllerClass,
             "storiesEnabled",
             XC_MethodReplacement.returnConstant(false)

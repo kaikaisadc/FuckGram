@@ -11,48 +11,42 @@ import org.lyaaz.fuckgram.HookModule.Companion.localeControllerClass
 import org.lyaaz.fuckgram.HookModule.Companion.rStringClass
 import org.lyaaz.fuckgram.HookModule.Companion.settings
 import org.lyaaz.fuckgram.HookUtils.hookMethods
+import org.lyaaz.fuckgram.Toggle
 
 object ChannelBottomButtonHook : HookModule {
     override fun enabled(): Boolean {
-        return settings.disableChannelBottomButton()
+        return settings.isEnabled(Toggle.CHANNEL_BOTTOM_BUTTON)
     }
 
     override fun hook(lpparam: XC_LoadPackage.LoadPackageParam): Boolean {
+        val unMuteStr by lazy { getLocaleString("ChannelUnmute") }
+        val muteStr by lazy { getLocaleString("ChannelMute") }
+
         return hookMethods(chatActivityClass, "updateBottomOverlay", object : XC_MethodHook() {
             @Throws(Throwable::class)
             override fun afterHookedMethod(param: MethodHookParam) {
-                val chatActivity = param.thisObject
-                val bottomOverlayChatText =
-                    XposedHelpers.getObjectField(chatActivity, "bottomOverlayChatText")
-                        ?: return
+                val bottomOverlayChatText = XposedHelpers.getObjectField(
+                    param.thisObject,
+                    "bottomOverlayChatText"
+                ) as? View ?: return
                 val text = XposedHelpers.getObjectField(
                     bottomOverlayChatText,
                     "lastText"
                 ) as? CharSequence ?: return
 
-                val setEnabled by lazy {
-                    XposedHelpers.findMethodExact(
-                        View::class.java,
-                        "setEnabled",
-                        Boolean::class.java
-                    )
-                }
-                val getString: (String, String) -> String? = { key1, key2 ->
-                    XposedHelpers.callStaticMethod(
-                        localeControllerClass,
-                        "getString",
-                        key1,
-                        XposedHelpers.getStaticIntField(rStringClass, key2)
-                    ) as? String
-                }
-
-                val unMuteStr by lazy { getString("ChannelUnmute", "ChannelUnmute") }
-                val muteStr by lazy { getString("ChannelMute", "ChannelMute") }
-
                 if (text.toString() == unMuteStr || text.toString() == muteStr) {
-                    setEnabled.invoke(bottomOverlayChatText, false)
+                    bottomOverlayChatText.isEnabled = false
                 }
             }
         })
+    }
+
+    private fun getLocaleString(key: String): String? {
+        return XposedHelpers.callStaticMethod(
+            localeControllerClass,
+            "getString",
+            key,
+            XposedHelpers.getStaticIntField(rStringClass, key)
+        ) as? String
     }
 }

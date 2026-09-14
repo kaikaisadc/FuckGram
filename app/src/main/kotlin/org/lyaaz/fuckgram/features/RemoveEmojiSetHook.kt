@@ -7,10 +7,11 @@ import org.lyaaz.fuckgram.HookModule
 import org.lyaaz.fuckgram.HookModule.Companion.emojiTabsStripClass
 import org.lyaaz.fuckgram.HookModule.Companion.settings
 import org.lyaaz.fuckgram.HookUtils.hookConstructors
+import org.lyaaz.fuckgram.Toggle
 
 object RemoveEmojiSetHook : HookModule {
     override fun enabled(): Boolean {
-        return settings.enableRemoveEmojiSet()
+        return settings.isEnabled(Toggle.REMOVE_EMOJI_SET)
     }
 
     override fun hook(lpparam: XC_LoadPackage.LoadPackageParam): Boolean {
