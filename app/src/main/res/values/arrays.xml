@@ -4,5 +4,6 @@
         <item>org.telegram.messenger</item>
         <item>org.telegram.messenger.web</item>
         <item>org.forkclient.messenger.beta</item>
+        <item>it.belloworld.mercurygram</item>
     </string-array>
 </resources>

@@ -26,6 +26,7 @@ class MainHook : IXposedHookLoadPackage {
             RemoveEmojiSetHook,
             RemoveSponsoredAdsHook,
             SpeedUpDownloadHook,
+            VideoQualityHook,
             SpoilersHook,
             StoriesHook,
             TrackingHook

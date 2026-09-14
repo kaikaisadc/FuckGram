@@ -16,6 +16,7 @@ enum class Toggle(
     PREMIUM_FEATURES("lock_premium_features", true, R.string.title_lock_premium_features),
     REMOVE_EMOJI_SET("enable_remove_emoji_set", true, R.string.title_enable_remove_emoji_set),
     SPEED_UP_DOWNLOAD("enable_speed_up_download", true, R.string.title_enable_speed_up_download),
+    VIDEO_QUALITY("force_video_quality", true, R.string.title_force_video_quality),
     TRACKING("disable_tracking", true, R.string.title_disable_tracking),
     CHAT_SWIPE("disable_chat_swipe", true, R.string.title_disable_chat_swipe),
     CHANNEL_BOTTOM_BUTTON("disable_channel_bottom_button", true, R.string.title_disable_channel_bottom_button),

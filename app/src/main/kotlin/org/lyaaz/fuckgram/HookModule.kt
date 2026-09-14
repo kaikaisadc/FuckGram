@@ -32,5 +32,6 @@ interface HookModule {
         val messageObjectClass: Class<*> by lazy { getClass("org.telegram.messenger.MessageObject") }
         val dialogSwipeControllerClass: Class<*> by lazy { getClass("org.telegram.ui.DialogsActivity\$SwipeController") }
         val storiesControllerClass: Class<*> by lazy { getClass("org.telegram.ui.Stories.StoriesController") }
+        val videoPlayerClass: Class<*> by lazy { getClass("org.telegram.ui.Components.VideoPlayer") }
     }
 }

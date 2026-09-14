@@ -8,6 +8,7 @@
     <string name="title_lock_premium_features">锁定高级功能</string>
     <string name="title_enable_remove_emoji_set">从贴纸面板移除表情套装</string>
     <string name="title_enable_speed_up_download">加速下载</string>
+    <string name="title_force_video_quality">强制最高画质</string>
     <string name="title_disable_tracking">禁用追踪</string>
     <string name="title_disable_chat_swipe">禁用聊天列表滑动操作</string>
     <string name="title_disable_channel_bottom_button">禁用频道底部按钮</string>
