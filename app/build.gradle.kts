@@ -76,7 +76,8 @@ android {
 dependencies {
     implementation(project(":ui"))
 
-    compileOnly(libs.xposed.api)
+    compileOnly(libs.libxposed.api)
+    implementation(libs.libxposed.service)
 
     implementation(libs.android.material)
 

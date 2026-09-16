@@ -23,6 +23,7 @@ class SettingsActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        RemotePrefs.start(this)
         currentUiMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
         setContent {
             Theme {
@@ -51,7 +52,7 @@ fun SettingsScreenPreview() {
 @Composable
 fun SettingsScreen() {
     val context = LocalContext.current
-    val settings = remember { Settings(Utils.getPrefs(context)) }
+    val settings = remember { Settings(Utils.getPrefs(context), RemotePrefs::sync) }
 
     LazyColumn(
         modifier = Modifier

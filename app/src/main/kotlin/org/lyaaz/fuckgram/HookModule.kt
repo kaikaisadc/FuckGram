@@ -1,22 +1,47 @@
 package org.lyaaz.fuckgram
 
 import android.content.SharedPreferences
-import de.robv.android.xposed.XSharedPreferences
-import de.robv.android.xposed.XposedHelpers
-import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam
+import android.util.Log
+import io.github.libxposed.api.XposedInterface
+import io.github.libxposed.api.XposedModule
+import io.github.libxposed.api.XposedModuleInterface
+import java.lang.reflect.Executable
 
 interface HookModule {
-    fun hook(lpparam: LoadPackageParam): Boolean
+    fun hook(): Boolean
     fun enabled(): Boolean
 
     companion object {
-        lateinit var lpparam: LoadPackageParam
+        const val PREFS_GROUP = "fuckgram_settings"
+        const val TAG = "FuckGram"
 
-        val prefs: SharedPreferences by lazy { XSharedPreferences(BuildConfig.APPLICATION_ID) }
+        private lateinit var module: XposedModule
+        private lateinit var lpparam: XposedModuleInterface.PackageLoadedParam
+
+        fun attach(entry: XposedModule, param: XposedModuleInterface.PackageLoadedParam) {
+            module = entry
+            lpparam = param
+        }
+
+        fun log(msg: String) {
+            module.log(Log.ERROR, TAG, msg)
+        }
+
+        fun log(msg: String, t: Throwable) {
+            module.log(Log.ERROR, TAG, msg, t)
+        }
+
+        fun hook(origin: Executable, hooker: XposedInterface.Hooker) {
+            module.hook(origin).intercept(hooker)
+        }
+
+        private val prefs: SharedPreferences by lazy { module.getRemotePreferences(PREFS_GROUP) }
         val settings: Settings by lazy { Settings(prefs) }
 
+        private val classCache = HashMap<String, Class<*>>()
+
         val getClass = { name: String ->
-            XposedHelpers.findClass(name, lpparam.classLoader)
+            classCache.getOrPut(name) { lpparam.getDefaultClassLoader().loadClass(name) }
         }
 
         val messagesControllerClass: Class<*> by lazy { getClass("org.telegram.messenger.MessagesController") }

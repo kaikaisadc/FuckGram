@@ -1,31 +1,15 @@
 package org.lyaaz.fuckgram
 
-import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Context
 import android.content.SharedPreferences
 
 object Utils {
     /**
-     * Retrieves shared preferences considering security measures.
-     *
-     * @param context The context used to access shared preferences.
-     * @return Shared preferences instance.
+     * Local store backing the settings UI. The hooked app does not read this file: changes are
+     * mirrored into the framework's remote preference store by [RemotePrefs].
      */
-    @SuppressLint("WorldReadableFiles")
     fun getPrefs(context: Context): SharedPreferences {
         val prefsName = "${context.packageName}_preferences"
-        return runCatching {
-            @Suppress("DEPRECATION")
-            context.getSharedPreferences(
-                prefsName,
-                Activity.MODE_WORLD_READABLE
-            )
-        }.getOrNull() ?: run {
-            context.getSharedPreferences(
-                prefsName,
-                Activity.MODE_PRIVATE
-            )
-        }
+        return context.getSharedPreferences(prefsName, Context.MODE_PRIVATE)
     }
 }
