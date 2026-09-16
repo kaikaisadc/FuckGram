@@ -1,12 +1,12 @@
 import java.util.*
 
 plugins {
-    id("com.android.application")
-    id("kotlin-android")
-    id("org.jetbrains.kotlin.plugin.compose") version "2.2.10"
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose)
 }
 
-fun String.execute(currentWorkingDir: File = file("./")): String {
+fun String.execute(currentWorkingDir: File): String {
     return providers.exec {
         isIgnoreExitValue = true
         workingDir = currentWorkingDir
@@ -14,27 +14,39 @@ fun String.execute(currentWorkingDir: File = file("./")): String {
     }.standardOutput.asText.get().trim()
 }
 
+fun String.executeOrNull(currentWorkingDir: File): String? {
+    return runCatching { execute(currentWorkingDir) }.getOrNull()?.takeIf { it.isNotBlank() }
+}
+
 android {
     namespace = "org.lyaaz.fuckgram"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "org.lyaaz.fuckgram"
         minSdk = 26
-        targetSdk = 35
-        versionCode = "git rev-list HEAD --count".execute().toInt()
-        versionName = "git describe --tag --always".execute().removePrefix("v")
+        targetSdk = 36
+        versionCode = "git rev-list HEAD --count"
+            .executeOrNull(rootProject.projectDir)?.toIntOrNull() ?: 1
+        versionName = "git describe --tag --always"
+            .executeOrNull(rootProject.projectDir)?.removePrefix("v") ?: "0.0.0"
     }
 
     signingConfigs {
-        create("release") {
-            val properties = Properties().apply {
-                load(File("signing.properties").reader())
+        val signingFile = listOf(
+            rootProject.file("signing.properties"),
+            file("signing.properties")
+        ).firstOrNull { it.exists() }
+        if (signingFile != null) {
+            create("release") {
+                val properties = Properties().apply {
+                    load(signingFile.reader())
+                }
+                storeFile = File(properties.getProperty("storeFilePath"))
+                storePassword = properties.getProperty("storePassword")
+                keyPassword = properties.getProperty("keyPassword")
+                keyAlias = properties.getProperty("keyAlias")
             }
-            storeFile = File(properties.getProperty("storeFilePath"))
-            storePassword = properties.getProperty("storePassword")
-            keyPassword = properties.getProperty("keyPassword")
-            keyAlias = properties.getProperty("keyAlias")
         }
     }
 
@@ -42,7 +54,7 @@ android {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
-            signingConfig = signingConfigs.getByName("release")
+            signingConfig = signingConfigs.findByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -64,19 +76,17 @@ android {
 dependencies {
     implementation(project(":ui"))
 
-    compileOnly("de.robv.android.xposed:api:82")
+    compileOnly(libs.xposed.api)
 
-    implementation("com.google.android.material:material:1.12.0")
+    implementation(libs.android.material)
 
-    // compose
-    val composeBom = platform("androidx.compose:compose-bom:2025.05.00")
+    val composeBom = platform(libs.androidx.compose.bom)
     implementation(composeBom)
 
-    implementation("androidx.compose.material3:material3")
-    implementation("androidx.compose.ui:ui")
-    implementation("androidx.activity:activity-compose")
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.activity.compose)
 
-    // Android Studio Preview support
-    implementation("androidx.compose.ui:ui-tooling-preview")
-    debugImplementation("androidx.compose.ui:ui-tooling")
+    implementation(libs.androidx.compose.ui.tooling.preview)
+    debugImplementation(libs.androidx.compose.ui.tooling)
 }
