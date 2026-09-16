@@ -1,13 +1,10 @@
 package org.lyaaz.fuckgram.features
 
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XC_MethodHook.MethodHookParam
-import de.robv.android.xposed.XposedHelpers
-import de.robv.android.xposed.callbacks.XC_LoadPackage
 import org.lyaaz.fuckgram.HookModule
 import org.lyaaz.fuckgram.HookModule.Companion.fileLoadOperationClass
 import org.lyaaz.fuckgram.HookModule.Companion.settings
 import org.lyaaz.fuckgram.HookUtils.hookMethods
+import org.lyaaz.fuckgram.Reflect
 import org.lyaaz.fuckgram.Settings
 import org.lyaaz.fuckgram.Toggle
 
@@ -16,32 +13,29 @@ object SpeedUpDownloadHook : HookModule {
         return settings.isEnabled(Toggle.SPEED_UP_DOWNLOAD)
     }
 
-    override fun hook(lpparam: XC_LoadPackage.LoadPackageParam): Boolean {
-        return hookMethods(fileLoadOperationClass, "updateParams", object : XC_MethodHook() {
-            @Throws(Throwable::class)
-            override fun beforeHookedMethod(param: MethodHookParam) {
-                XposedHelpers.setIntField(
-                    param.thisObject,
-                    "downloadChunkSizeBig",
-                    Settings.DOWNLOAD_CHUNK_SIZE_BIG
-                )
-                XposedHelpers.setIntField(
-                    param.thisObject,
-                    "maxDownloadRequests",
-                    Settings.MAX_DOWNLOAD_REQUESTS
-                )
-                XposedHelpers.setIntField(
-                    param.thisObject,
-                    "maxDownloadRequestsBig",
-                    Settings.MAX_DOWNLOAD_REQUESTS_BIG
-                )
-                XposedHelpers.setIntField(
-                    param.thisObject,
-                    "maxCdnParts",
-                    Settings.MAX_CDN_PARTS
-                )
-                param.result = null
-            }
-        })
+    override fun hook(): Boolean {
+        return hookMethods(fileLoadOperationClass, "updateParams") { chain ->
+            Reflect.setIntField(
+                chain.thisObject,
+                "downloadChunkSizeBig",
+                Settings.DOWNLOAD_CHUNK_SIZE_BIG
+            )
+            Reflect.setIntField(
+                chain.thisObject,
+                "maxDownloadRequests",
+                Settings.MAX_DOWNLOAD_REQUESTS
+            )
+            Reflect.setIntField(
+                chain.thisObject,
+                "maxDownloadRequestsBig",
+                Settings.MAX_DOWNLOAD_REQUESTS_BIG
+            )
+            Reflect.setIntField(
+                chain.thisObject,
+                "maxCdnParts",
+                Settings.MAX_CDN_PARTS
+            )
+            null
+        }
     }
 }

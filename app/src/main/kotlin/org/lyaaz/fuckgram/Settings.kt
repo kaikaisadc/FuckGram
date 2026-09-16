@@ -25,7 +25,10 @@ enum class Toggle(
     MESSAGE_FILTER("enable_message_filter", false, R.string.title_enable_message_filter)
 }
 
-class Settings(private val prefs: SharedPreferences) {
+class Settings(
+    private val prefs: SharedPreferences,
+    private val sync: ((String, Any?) -> Unit)? = null
+) {
 
     fun isEnabled(toggle: Toggle): Boolean {
         return prefs.getBoolean(toggle.key, toggle.default)
@@ -33,6 +36,7 @@ class Settings(private val prefs: SharedPreferences) {
 
     fun setEnabled(toggle: Toggle, value: Boolean) {
         prefs.edit { putBoolean(toggle.key, value) }
+        sync?.invoke(toggle.key, value)
     }
 
     fun messageFilterPattern(): String {
@@ -41,6 +45,7 @@ class Settings(private val prefs: SharedPreferences) {
 
     fun setMessageFilterPattern(value: String) {
         prefs.edit { putString(PREF_MESSAGE_FILTER_PATTERN, value) }
+        sync?.invoke(PREF_MESSAGE_FILTER_PATTERN, value)
     }
 
     companion object {

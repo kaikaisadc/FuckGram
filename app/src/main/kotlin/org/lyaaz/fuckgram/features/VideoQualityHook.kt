@@ -1,13 +1,10 @@
 package org.lyaaz.fuckgram.features
 
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XC_MethodHook.MethodHookParam
-import de.robv.android.xposed.XposedHelpers
-import de.robv.android.xposed.callbacks.XC_LoadPackage
 import org.lyaaz.fuckgram.HookModule
 import org.lyaaz.fuckgram.HookModule.Companion.settings
 import org.lyaaz.fuckgram.HookModule.Companion.videoPlayerClass
 import org.lyaaz.fuckgram.HookUtils.hookMethods
+import org.lyaaz.fuckgram.Reflect
 import org.lyaaz.fuckgram.Toggle
 
 object VideoQualityHook : HookModule {
@@ -15,18 +12,16 @@ object VideoQualityHook : HookModule {
         return settings.isEnabled(Toggle.VIDEO_QUALITY)
     }
 
-    override fun hook(lpparam: XC_LoadPackage.LoadPackageParam): Boolean {
-        return hookMethods(videoPlayerClass, "preparePlayer", object : XC_MethodHook() {
-            @Throws(Throwable::class)
-            override fun beforeHookedMethod(param: MethodHookParam) {
-                forceHighestQuality(param)
-            }
-        })
+    override fun hook(): Boolean {
+        return hookMethods(videoPlayerClass, "preparePlayer") { chain ->
+            val args = chain.args.toMutableList<Any?>()
+            forceHighestQuality(args)
+            chain.proceed(args.toTypedArray())
+        }
     }
 
-    private fun forceHighestQuality(param: MethodHookParam) {
+    private fun forceHighestQuality(args: MutableList<Any?>) {
         runCatching {
-            val args = param.args ?: return
             val qualities = args.firstOrNull { it is List<*> } as? List<*> ?: return
             val targetIndex = args.indexOf(qualities) + 1
             if (targetIndex >= args.size) return
@@ -40,9 +35,9 @@ object VideoQualityHook : HookModule {
                 val height: Int
                 val original: Boolean
                 try {
-                    width = XposedHelpers.getIntField(quality, "width")
-                    height = XposedHelpers.getIntField(quality, "height")
-                    original = XposedHelpers.getBooleanField(quality, "original")
+                    width = Reflect.getIntField(quality, "width")
+                    height = Reflect.getIntField(quality, "height")
+                    original = Reflect.getBooleanField(quality, "original")
                 } catch (t: Throwable) {
                     continue
                 }

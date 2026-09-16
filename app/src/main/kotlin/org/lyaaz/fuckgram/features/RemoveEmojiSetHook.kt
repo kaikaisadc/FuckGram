@@ -1,8 +1,5 @@
 package org.lyaaz.fuckgram.features
 
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XC_MethodHook.MethodHookParam
-import de.robv.android.xposed.callbacks.XC_LoadPackage
 import org.lyaaz.fuckgram.HookModule
 import org.lyaaz.fuckgram.HookModule.Companion.emojiTabsStripClass
 import org.lyaaz.fuckgram.HookModule.Companion.settings
@@ -14,15 +11,14 @@ object RemoveEmojiSetHook : HookModule {
         return settings.isEnabled(Toggle.REMOVE_EMOJI_SET)
     }
 
-    override fun hook(lpparam: XC_LoadPackage.LoadPackageParam): Boolean {
-        return hookConstructors(emojiTabsStripClass, object : XC_MethodHook() {
-            @Throws(Throwable::class)
-            override fun beforeHookedMethod(param: MethodHookParam) {
-                when (param.args.size) {
-                    6 -> param.args[3] = false
-                    8 -> param.args[4] = false
-                }
+    override fun hook(): Boolean {
+        return hookConstructors(emojiTabsStripClass) { chain ->
+            val args = chain.args.toMutableList<Any?>()
+            when (args.size) {
+                6 -> args[3] = false
+                8 -> args[4] = false
             }
-        })
+            chain.proceed(args.toTypedArray())
+        }
     }
 }

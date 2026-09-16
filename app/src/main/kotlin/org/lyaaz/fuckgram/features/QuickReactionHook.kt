@@ -1,8 +1,5 @@
 package org.lyaaz.fuckgram.features
 
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XC_MethodHook.MethodHookParam
-import de.robv.android.xposed.callbacks.XC_LoadPackage
 import org.lyaaz.fuckgram.HookModule
 import org.lyaaz.fuckgram.HookModule.Companion.chatActivityClass
 import org.lyaaz.fuckgram.HookModule.Companion.settings
@@ -14,14 +11,9 @@ object QuickReactionHook : HookModule {
         return settings.isEnabled(Toggle.QUICK_REACTION)
     }
 
-    override fun hook(lpparam: XC_LoadPackage.LoadPackageParam): Boolean {
-        return hookMethods(chatActivityClass, "selectReaction", object : XC_MethodHook() {
-            @Throws(Throwable::class)
-            override fun beforeHookedMethod(param: MethodHookParam) {
-                if (param.args.getOrNull(6) == true) {
-                    param.result = null
-                }
-            }
-        })
+    override fun hook(): Boolean {
+        return hookMethods(chatActivityClass, "selectReaction") { chain ->
+            if (chain.args.getOrNull(6) == true) null else chain.proceed()
+        }
     }
 }

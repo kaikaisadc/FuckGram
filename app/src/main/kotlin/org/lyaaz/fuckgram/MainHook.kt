@@ -1,19 +1,19 @@
 package org.lyaaz.fuckgram
 
-import de.robv.android.xposed.IXposedHookLoadPackage
-import de.robv.android.xposed.XposedBridge
-import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam
+import android.util.Log
+import io.github.libxposed.api.XposedModule
+import io.github.libxposed.api.XposedModuleInterface
 import org.lyaaz.fuckgram.features.*
 
-class MainHook : IXposedHookLoadPackage {
-    override fun handleLoadPackage(lpparam: LoadPackageParam) {
-        HookModule.lpparam = lpparam
+class MainHook : XposedModule() {
+    override fun onPackageLoaded(param: XposedModuleInterface.PackageLoadedParam) {
+        if (param.packageName == BuildConfig.APPLICATION_ID) return
+        HookModule.attach(this, param)
         modules.forEach { module ->
             runCatching {
-                if (module.enabled()) module.hook(lpparam)
+                if (module.enabled()) module.hook()
             }.onFailure {
-                XposedBridge.log("FuckGram: failed to apply ${module.javaClass.simpleName}")
-                XposedBridge.log(it)
+                log(Log.ERROR, HookModule.TAG, "failed to apply ${module.javaClass.simpleName}", it)
             }
         }
     }

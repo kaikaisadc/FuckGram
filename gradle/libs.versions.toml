@@ -3,11 +3,12 @@ agp = "8.13.2"
 kotlin = "2.3.21"
 composeBom = "2026.06.01"
 material = "1.14.0"
-xposedApi = "82"
+libxposed = "101.0.0"
 
 [libraries]
 android-material = { module = "com.google.android.material:material", version.ref = "material" }
-xposed-api = { module = "de.robv.android.xposed:api", version.ref = "xposedApi" }
+libxposed-api = { module = "io.github.libxposed:api", version.ref = "libxposed" }
+libxposed-service = { module = "io.github.libxposed:service", version.ref = "libxposed" }
 androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBom" }
 androidx-compose-material3 = { module = "androidx.compose.material3:material3" }
 androidx-compose-ui = { module = "androidx.compose.ui:ui" }

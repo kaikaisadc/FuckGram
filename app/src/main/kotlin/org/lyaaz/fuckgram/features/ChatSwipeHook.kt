@@ -1,7 +1,5 @@
 package org.lyaaz.fuckgram.features
 
-import de.robv.android.xposed.XC_MethodReplacement
-import de.robv.android.xposed.callbacks.XC_LoadPackage
 import org.lyaaz.fuckgram.HookModule
 import org.lyaaz.fuckgram.HookModule.Companion.dialogCellClass
 import org.lyaaz.fuckgram.HookModule.Companion.dialogSwipeControllerClass
@@ -16,23 +14,10 @@ object ChatSwipeHook : HookModule {
         return settings.isEnabled(Toggle.CHAT_SWIPE)
     }
 
-    override fun hook(lpparam: XC_LoadPackage.LoadPackageParam): Boolean {
-        return hookMethods(
-            dialogCellClass,
-            "getTranslationX",
-            XC_MethodReplacement.returnConstant(0f)
-        ) and hookMethods(
-            dialogCellClass,
-            "setTranslationX",
-            XC_MethodReplacement.returnConstant(null)
-        ) and hookMethods(
-            dialogSwipeControllerClass,
-            "onSwiped",
-            XC_MethodReplacement.returnConstant(null)
-        ) and hookMethods(
-            sharedConfigClass,
-            "getChatSwipeAction",
-            XC_MethodReplacement.returnConstant(-1)
-        )
+    override fun hook(): Boolean {
+        return hookMethods(dialogCellClass, "getTranslationX") { 0f } and
+            hookMethods(dialogCellClass, "setTranslationX") { null } and
+            hookMethods(dialogSwipeControllerClass, "onSwiped") { null } and
+            hookMethods(sharedConfigClass, "getChatSwipeAction") { -1 }
     }
 }
