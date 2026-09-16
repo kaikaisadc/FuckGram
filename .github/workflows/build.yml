@@ -43,6 +43,23 @@ jobs:
       - name: Assemble debug and release
         run: ./gradlew assembleDebug assembleRelease --stacktrace
 
+      - name: Verify module packaging
+        run: |
+          set -e
+          unzip -l app/build/outputs/apk/release/*.apk | grep -E 'META-INF/xposed/(module\.prop|java_init\.list|scope\.list)'
+          if unzip -l app/build/outputs/apk/release/*.apk | grep -q 'assets/xposed_init'; then
+            echo "::error::legacy assets/xposed_init is still packaged"
+            exit 1
+          fi
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: fuckgram-debug-${{ github.run_id }}
+          path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+          retention-days: 15
+
   package:
     name: Release APK
     if: startsWith(github.ref, 'refs/tags/')
