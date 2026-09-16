@@ -18,7 +18,7 @@ object QuickReactionHook : HookModule {
         return hookMethods(chatActivityClass, "selectReaction", object : XC_MethodHook() {
             @Throws(Throwable::class)
             override fun beforeHookedMethod(param: MethodHookParam) {
-                if (param.args[6] is Boolean && param.args[6] as Boolean) {
+                if (param.args.getOrNull(6) == true) {
                     param.result = null
                 }
             }

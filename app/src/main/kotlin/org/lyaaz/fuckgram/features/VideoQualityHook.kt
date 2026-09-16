@@ -25,34 +25,37 @@ object VideoQualityHook : HookModule {
     }
 
     private fun forceHighestQuality(param: MethodHookParam) {
-        val args = param.args ?: return
-        if (args.size < 2) return
-        val qualities = args[0] as? List<*> ?: return
+        runCatching {
+            val args = param.args ?: return
+            val qualities = args.firstOrNull { it is List<*> } as? List<*> ?: return
+            val targetIndex = args.indexOf(qualities) + 1
+            if (targetIndex >= args.size) return
 
-        var best: Any? = null
-        var bestPixels = -1L
-        var bestIsOriginal = false
-        for (quality in qualities) {
-            if (quality == null) continue
-            val width: Int
-            val height: Int
-            val original: Boolean
-            try {
-                width = XposedHelpers.getIntField(quality, "width")
-                height = XposedHelpers.getIntField(quality, "height")
-                original = XposedHelpers.getBooleanField(quality, "original")
-            } catch (t: Throwable) {
-                continue
+            var best: Any? = null
+            var bestPixels = -1L
+            var bestIsOriginal = false
+            for (quality in qualities) {
+                if (quality == null) continue
+                val width: Int
+                val height: Int
+                val original: Boolean
+                try {
+                    width = XposedHelpers.getIntField(quality, "width")
+                    height = XposedHelpers.getIntField(quality, "height")
+                    original = XposedHelpers.getBooleanField(quality, "original")
+                } catch (t: Throwable) {
+                    continue
+                }
+                val pixels = width.toLong() * height.toLong()
+                if (pixels > bestPixels || (pixels == bestPixels && original && !bestIsOriginal)) {
+                    best = quality
+                    bestPixels = pixels
+                    bestIsOriginal = original
+                }
             }
-            val pixels = width.toLong() * height.toLong()
-            if (pixels > bestPixels || (pixels == bestPixels && original && !bestIsOriginal)) {
-                best = quality
-                bestPixels = pixels
-                bestIsOriginal = original
+            if (best != null) {
+                args[targetIndex] = best
             }
-        }
-        if (best != null) {
-            args[1] = best
         }
     }
 }

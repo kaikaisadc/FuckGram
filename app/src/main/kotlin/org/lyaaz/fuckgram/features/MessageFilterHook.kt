@@ -18,9 +18,10 @@ object MessageFilterHook : HookModule {
     }
 
     override fun hook(lpparam: XC_LoadPackage.LoadPackageParam): Boolean {
-        val blacklistPattern by lazy {
+        val blacklistPattern = runCatching {
             settings.messageFilterPattern().toRegex(RegexOption.IGNORE_CASE)
-        }
+        }.getOrNull() ?: return false
+
         return runCatching {
             XposedBridge.hookMethod(
                 java.util.ArrayList::class.java.getDeclaredMethod(
@@ -29,37 +30,24 @@ object MessageFilterHook : HookModule {
                 ), object : XC_MethodHook() {
                     @Throws(Throwable::class)
                     override fun beforeHookedMethod(param: MethodHookParam) {
-                        val arg = param.args[0] ?: return
-                        if (arg.javaClass.name == messageObjectClass.name) {
-                            val text by lazy {
-                                XposedHelpers.getObjectField(
-                                    arg, "messageText"
-                                ) as CharSequence?
-                            }
-                            val caption by lazy {
-                                XposedHelpers.getObjectField(
-                                    arg, "caption"
-                                ) as CharSequence?
-                            }
-                            val layoutCreated by lazy {
-                                XposedHelpers.getBooleanField(
-                                    arg, "layoutCreated"
-                                )
-                            }
-                            // avoid block pinned message
-                            if (!layoutCreated) return
-                            text?.let {
-                                if (blacklistPattern.containsMatchIn(it)) {
-                                    param.result = false
-                                    return
-                                }
-                            }
-                            caption?.let {
-                                if (blacklistPattern.containsMatchIn(it)) {
-                                    param.result = false
-                                    return
-                                }
-                            }
+                        val arg = param.args?.getOrNull(0) ?: return
+                        if (!messageObjectClass.isInstance(arg)) return
+
+                        val text: CharSequence?
+                        val caption: CharSequence?
+                        try {
+                            text = XposedHelpers.getObjectField(arg, "messageText") as? CharSequence
+                            caption = XposedHelpers.getObjectField(arg, "caption") as? CharSequence
+                            if (!XposedHelpers.getBooleanField(arg, "layoutCreated")) return
+                        } catch (t: Throwable) {
+                            return
+                        }
+                        if (text == null && caption == null) return
+
+                        if ((text != null && blacklistPattern.containsMatchIn(text)) ||
+                            (caption != null && blacklistPattern.containsMatchIn(caption))
+                        ) {
+                            param.result = false
                         }
                     }
                 }
