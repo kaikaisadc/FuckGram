@@ -1,19 +1,19 @@
 <resources>
     <string name="app_name">Fuck Telegram</string>
-    <string name="app_desc">让 Telegram 再次伟大！</string>
-    <string name="title_enable_force_forward">解除转发限制</string>
-    <string name="title_enable_remove_sponsored_ads">移除赞助广告</string>
-    <string name="title_disable_reaction_popup">禁用表情回应弹窗</string>
-    <string name="title_disable_quick_reaction">禁用双击快速回应</string>
-    <string name="title_lock_premium_features">锁定高级功能</string>
-    <string name="title_enable_remove_emoji_set">从贴纸面板移除表情套装</string>
-    <string name="title_enable_speed_up_download">加速下载</string>
-    <string name="title_force_video_quality">强制最高画质</string>
-    <string name="title_disable_tracking">禁用追踪</string>
-    <string name="title_disable_chat_swipe">禁用聊天列表滑动操作</string>
-    <string name="title_disable_channel_bottom_button">禁用频道底部按钮</string>
-    <string name="title_prohibit_spoilers">禁用剧透遮罩</string>
-    <string name="title_enable_message_filter">启用消息过滤</string>
-    <string name="title_message_filter_pattern">消息过滤规则</string>
-    <string name="title_disable_stories">禁用动态（Stories）</string>
+    <string name="app_desc">Make Telegram Great Again!</string>
+    <string name="title_enable_force_forward">Enable force forward</string>
+    <string name="title_enable_remove_sponsored_ads">Remove sponsored ads</string>
+    <string name="title_disable_reaction_popup">Disable reaction popup</string>
+    <string name="title_disable_quick_reaction">Disable double-tap quick reaction</string>
+    <string name="title_lock_premium_features">Lock premium features</string>
+    <string name="title_enable_remove_emoji_set">Remove emoji set from sticker panel</string>
+    <string name="title_enable_speed_up_download">Speed up download</string>
+    <string name="title_force_video_quality">Force highest video quality</string>
+    <string name="title_disable_tracking">Disable tracking</string>
+    <string name="title_disable_chat_swipe">Disable chat swipe action</string>
+    <string name="title_disable_channel_bottom_button">Disable channel bottom button</string>
+    <string name="title_prohibit_spoilers">Prohibit spoilers</string>
+    <string name="title_enable_message_filter">Enable message filter</string>
+    <string name="title_message_filter_pattern">Message filter pattern</string>
+    <string name="title_disable_stories">Disable stories</string>
 </resources>
