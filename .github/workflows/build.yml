@@ -1,4 +1,4 @@
-name: Build
+name: Build and Release
 
 on:
   push:
@@ -6,20 +6,95 @@ on:
       - main
     tags:
       - '*'
-  pull_request_target:
+  pull_request:
     types:
       - opened
       - reopened
       - synchronize
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
-  build:
-    uses: FuckAPK/workflows/.github/workflows/build.yml@main
+  verify:
+    name: Verify
+    if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: true
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Assemble debug
+        run: ./gradlew assembleDebug --stacktrace
+
+  package:
+    name: Release APK
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
     permissions:
       contents: write
-    secrets:
-      KEYSTORE_FILE: ${{ secrets.KEYSTORE_FILE }}
-      KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-      KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-      KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: true
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Configure release signing
+        env:
+          KEYSTORE_FILE: ${{ secrets.KEYSTORE_FILE }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+        run: |
+          if [ -z "$KEYSTORE_FILE" ]; then
+            echo "::error::KEYSTORE_FILE is empty - configure the release secrets for this repository"
+            exit 1
+          fi
+          printf '%s' "$KEYSTORE_FILE" | base64 --decode --ignore-garbage > keystore.jks
+          {
+            echo "storeFilePath=$PWD/keystore.jks"
+            echo "storePassword=$KEYSTORE_PASSWORD"
+            echo "keyPassword=$KEY_PASSWORD"
+            echo "keyAlias=$KEY_ALIAS"
+          } > signing.properties
+
+      - name: Assemble release
+        run: ./gradlew assembleRelease --stacktrace
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: apk-${{ github.run_id }}
+          path: app/build/outputs/apk/release/*.apk
+          if-no-files-found: error
+          overwrite: true
+          retention-days: 15
+
+      - name: Attach APK to the GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: app/build/outputs/apk/release/*.apk
