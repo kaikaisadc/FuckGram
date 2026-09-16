@@ -3,7 +3,7 @@ agp = "8.13.2"
 kotlin = "2.3.21"
 composeBom = "2026.06.01"
 material = "1.14.0"
-libxposed = "102.0.0"
+libxposed = "101.0.0"
 
 [libraries]
 android-material = { module = "com.google.android.material:material", version.ref = "material" }
